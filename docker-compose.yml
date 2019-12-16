@@ -11,7 +11,7 @@ services:
       - "--entrypoints.web.address=:80"
       - "--entryPoints.websecure.address=:443"
       - "--certificatesResolvers.le.acme.email=your-email@your-domain.org"
-      - "--certificatesResolvers.le.acme.storage=acme.json"
+      - "--certificatesResolvers.le.acme.storage=/acme.json"
       # used during the challenge
       - "--certificatesResolvers.le.acme.httpChallenge.entryPoint=web"
     ports:
@@ -20,6 +20,7 @@ services:
       - "8080:8080"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./acme.json:/acme.json:rw"
 
   homeassistant:
     container_name: home-assistant
@@ -32,5 +33,4 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.hass.rule=Host(`hass.localhost`)"
-      - "traefik.http.routers.hass.entrypoints=web"
       - "traefik.http.services.hass.loadbalancer.server.port=8123"
