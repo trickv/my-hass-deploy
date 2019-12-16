@@ -1,0 +1,35 @@
+version: "3.3"
+services:
+
+  traefik:
+    image: "traefik:v2.0"
+    container_name: "traefik"
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entryPoints.websecure.address=:443"
+      - "--certificatesResolvers.le.acme.email=your-email@your-domain.org"
+      - "--certificatesResolvers.le.acme.storage=acme.json"
+      # used during the challenge
+      - "--certificatesResolvers.le.acme.httpChallenge.entryPoint=web"
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+
+  homeassistant:
+    container_name: home-assistant
+    image: homeassistant/home-assistant:stable
+    volumes:
+      - ./config:/config
+    environment:
+      - TZ=America/New_York
+    restart: always
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.hass.rule=Host(`hass.localhost`)"
+      - "traefik.http.routers.hass.entrypoints=web"
+      - "traefik.http.services.hass.loadbalancer.server.port=8123"
