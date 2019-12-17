@@ -10,13 +10,14 @@ services:
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.web.address=:80"
       - "--entryPoints.websecure.address=:443"
-      - "--certificatesResolvers.le.acme.email=your-email@your-domain.org"
+      - "--certificatesResolvers.le.acme.email=trick@vanstaveren.us"
       - "--certificatesResolvers.le.acme.storage=/acme.json"
+        #      - "--certificatesResolvers.le.acme.caServer=https://acme-staging-v02.api.letsencrypt.org/directory"
       # used during the challenge
-      - "--certificatesResolvers.le.acme.httpChallenge.entryPoint=web"
+      - "--certificatesResolvers.le.acme.tlsChallenge=true"
     ports:
       - "80:80"
-      - "443:433"
+      - "443:443"
       - "8080:8080"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
@@ -28,9 +29,11 @@ services:
     volumes:
       - ./config:/config
     environment:
-      - TZ=America/New_York
+      - TZ=America/Chicago
     restart: always
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.hass.rule=Host(`hass.localhost`)"
+      - "traefik.http.routers.hass.rule=Host(`home.v9n.us`) || Host(`hass.vanstaveren.us`)"
+      - "traefik.http.routers.hass.entrypoints=websecure"
+      - "traefik.http.routers.hass.tls.certresolver=le"
       - "traefik.http.services.hass.loadbalancer.server.port=8123"
