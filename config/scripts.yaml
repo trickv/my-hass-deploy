@@ -1,0 +1,17 @@
+spaceheatertoggle:
+  alias: Space Heater Toggle
+  description: "Toggles the on/off state of the space heater"
+  sequence:
+    - event: LOGBOOK_ENTRY
+      event_data:
+        name: Space Heater Toggle
+        message: it happened
+    - alias: GPIO on
+      service: remote_rpi_gpio.turn_on
+      data:
+        port: 17
+    - delay: '00:00:00.1'
+    - alias: GPIO off
+      service: remote_rpi_gpio.turn_off
+      data:
+        port: 17
