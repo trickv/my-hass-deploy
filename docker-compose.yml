@@ -15,13 +15,20 @@ services:
         #      - "--certificatesResolvers.le.acme.caServer=https://acme-staging-v02.api.letsencrypt.org/directory"
       # used during the challenge
       - "--certificatesResolvers.le.acme.tlsChallenge=true"
-    ports:
-      - "80:80"
-      - "443:443"
-      - "8080:8080"
+      - "--metrics.prometheus.entryPoint=metrics"
+      - "--metrics.prometheus=true"
+      - "--entryPoints.metrics.address=:7082"
+        #- "--metrics.prometheus.manualrouting=true"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.metrics.rule=Host(`home.v9n.us`) && Path(`/metrics`)"
+      - "traefik.http.routers.metrics.entrypoints=websecure"
+      - "traefik.http.routers.metrics.tls.certresolver=le"
+      - "traefik.http.services.metrics.loadbalancer.server.port=7082"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
       - "./acme.json:/acme.json:rw"
+    network_mode: host
 
   homeassistant:
     container_name: home-assistant
@@ -31,9 +38,11 @@ services:
     environment:
       - TZ=America/Chicago
     restart: always
+    network_mode: host
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.hass.rule=Host(`home.v9n.us`) || Host(`hass.vanstaveren.us`)"
+        #- "traefik.http.routers.hass.rule=Host(`home.v9n.us`) || Host(`hass.vanstaveren.us`)"
+      - "traefik.http.routers.hass.rule=Host(`hass.vanstaveren.us`)"
       - "traefik.http.routers.hass.entrypoints=websecure"
       - "traefik.http.routers.hass.tls.certresolver=le"
       - "traefik.http.services.hass.loadbalancer.server.port=8123"
