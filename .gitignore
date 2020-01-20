@@ -2,3 +2,4 @@ acme.json
 config/.HA_VERSION
 config/.storage
 config/*.db
+config/*.log
