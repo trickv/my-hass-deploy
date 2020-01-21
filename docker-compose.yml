@@ -30,9 +30,9 @@ services:
       - "./acme.json:/acme.json:rw"
     network_mode: host
 
-  homeassistant:
-    container_name: home-assistant
-    image: homeassistant/home-assistant:stable
+  hass:
+    container_name: hass
+    image: homeassistant/home-assistant:0.104.3
     volumes:
       - ./config:/config
     environment:
